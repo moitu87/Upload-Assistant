@@ -50,6 +50,7 @@ from src.trackers.HUNO import HUNO
 from src.trackers.IHD import IHD
 from src.trackers.IS import IS
 from src.trackers.ITT import ITT
+from src.trackers.LACALE import LACALE
 from src.trackers.LCD import LCD
 from src.trackers.LDU import LDU
 from src.trackers.LST import LST
@@ -1361,6 +1362,7 @@ tracker_class_map: dict[str, type[Any]] = {
     "IS": IS,
     "LCD": LCD,
     "LDU": LDU,
+    "LACALE": LACALE,
     "LST": LST,
     "LT": LT,
     "LUME": LUME,
@@ -1445,7 +1447,7 @@ api_trackers = {
     "YUS",
 }
 
-other_api_trackers = {"ANT", "BHDTV", "C411", "DC", "GPW", "NBL", "RTF", "SN", "SPD", "TL", "TORR9", "TVC"}
+other_api_trackers = {"ANT", "BHDTV", "C411", "DC", "GPW", "LACALE", "NBL", "RTF", "SN", "SPD", "TL", "TORR9", "TVC"}
 
 http_trackers = {"AR", "ASC", "AZ", "BJS", "BT", "CZ", "FF", "FL", "HDB", "HDF", "HDS", "HDT", "IS", "MTV", "PHD", "PTER", "PTS", "TTG"}
 
@@ -1457,7 +1459,7 @@ nfo_skip_trackers = frozenset({"DP", "FNP", "HHD", "LST", "LUME", "STC", "ULCX"}
 notag_labels: dict[str, str] = {"C411": "NOTAG", "FNP": "NOGROUP", "G3MINI": "NoGrP", "GF": "NoTag"}
 
 # Trackers that skip the English audio/subtitle requirement check
-english_check_skip_trackers = frozenset({"C411", "G3MINI", "GF", "HDF", "NST", "TOS", "TORR9"})
+english_check_skip_trackers = frozenset({"C411", "G3MINI", "GF", "HDF", "LACALE", "NST", "TOS", "TORR9"})
 
 # Trackers that require French audio or subtitles (warn if neither is detected)
-french_check_trackers = frozenset({"C411", "G3MINI", "GF", "HDF", "NST", "TOS", "TORR9"})
+french_check_trackers = frozenset({"C411", "G3MINI", "GF", "HDF", "LACALE", "NST", "TOS", "TORR9"})

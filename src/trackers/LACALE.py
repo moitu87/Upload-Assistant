@@ -284,13 +284,12 @@ class LACALE(FrenchTrackerMixin):
         if cover_url:
             data["coverUrl"] = cover_url
 
-        upload_url = f"{self.upload_url}"
+        upload_url = f"{self.upload_url}?passkey={passkey}"
 
         headers: dict[str, str] = {
             "Accept": "*/*",
             "Origin": self.base_url,
             "Referer": f"{self.base_url}/upload",
-            "X-Api-Key": passkey,
         }
 
         try:

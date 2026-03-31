@@ -56,16 +56,16 @@ class LACALE(FrenchTrackerMixin):
             ("MOVIE", "HDDVD"): ("cmjoyv2cd00027eryreyk39gz", "films", "films-hddvd"),
             ("MOVIE", "DISC"): ("cmjoyv2cd00027eryreyk39gz", "films", "films-bluray"),
             ("MOVIE", ""): ("cmjoyv2cd00027eryreyk39gz", "films", "films-bluray"),
-            ("TV", "BluRay"): ("cmjoyv2cd0002j6ry7k0e1tav", "series", "series-bluray"),
-            ("TV", "REMUX"): ("cmjoyv2cd0002j6ry7k0e1tav", "series", "series-bluray"),
-            ("TV", "ENCODE"): ("cmjoyv2cd0002j6ry7k0e1tav", "series", "series-bluray"),
-            ("TV", "WEBDL"): ("cmjoyv2cd0002j6ry7k0e1tav", "series", "series-webdl"),
-            ("TV", "WEBRIP"): ("cmjoyv2cd0002j6ry7k0e1tav", "series", "series-webrip"),
-            ("TV", "HDTV"): ("cmjoyv2cd0002j6ry7k0e1tav", "series", "series-hdtv"),
-            ("TV", "DVDRIP"): ("cmjoyv2cd0002j6ry7k0e1tav", "series", "series-dvdrip"),
-            ("TV", "DVD"): ("cmjoyv2cd0002j6ry7k0e1tav", "series", "series-dvd"),
-            ("TV", "DISC"): ("cmjoyv2cd0002j6ry7k0e1tav", "series", "series-bluray"),
-            ("TV", ""): ("cmjoyv2cd0002j6ry7k0e1tav", "series", "series-webdl"),
+            ("TV", "BluRay"): ("cmjoyv2dg00067ery8m6c3q8h", "series", "series-bluray"),
+            ("TV", "REMUX"): ("cmjoyv2dg00067ery8m6c3q8h", "series", "series-bluray"),
+            ("TV", "ENCODE"): ("cmjoyv2dg00067ery8m6c3q8h", "series", "series-bluray"),
+            ("TV", "WEBDL"): ("cmjoyv2dg00067ery8m6c3q8h", "series", "series-webdl"),
+            ("TV", "WEBRIP"): ("cmjoyv2dg00067ery8m6c3q8h", "series", "series-webrip"),
+            ("TV", "HDTV"): ("cmjoyv2dg00067ery8m6c3q8h", "series", "series-hdtv"),
+            ("TV", "DVDRIP"): ("cmjoyv2dg00067ery8m6c3q8h", "series", "series-dvdrip"),
+            ("TV", "DVD"): ("cmjoyv2dg00067ery8m6c3q8h", "series", "series-dvd"),
+            ("TV", "DISC"): ("cmjoyv2dg00067ery8m6c3q8h", "series", "series-bluray"),
+            ("TV", ""): ("cmjoyv2dg00067ery8m6c3q8h", "series", "series-webdl"),
         }
 
         key = (category, type_val)
@@ -116,7 +116,117 @@ class LACALE(FrenchTrackerMixin):
         return "\n".join(parts)
 
     def _build_tags(self, meta: Meta, language_tag: str) -> str:
-        return ""
+        """Build tag slugs for La-Cale based on Releasarr's mapping."""
+        tags: list[str] = []
+
+        # Quality / Resolution
+        res = meta.get("resolution", "")
+        quality_map = {
+            "2160": "2160p-4k",
+            "1080": "1080p-full-hd",
+            "720": "720p-hd",
+            "480": "sd",
+        }
+        for key, val in quality_map.items():
+            if key in res:
+                tags.append(val)
+                break
+
+        # Source
+        type_val = meta.get("type", "").upper()
+        source = meta.get("source", "")
+
+        source_map = {
+            "REMUX": "remux",
+            "BluRay": "bluray",
+            "DISC": "full-disc",
+            "WEBDL": "web-dl",
+            "WEBRIP": "webrip",
+            "DVDRIP": "dvdrip",
+            "HDTV": "tv",
+        }
+
+        if type_val == "REMUX":
+            tags.append("remux")
+        if source in ("BluRay",) or type_val == "DISC":
+            tags.append("bluray")
+        if type_val == "WEBDL":
+            tags.append("web-dl")
+        elif type_val == "WEBRIP":
+            tags.append("webrip")
+        elif type_val == "HDTV":
+            tags.append("tv")
+        elif type_val == "DVDRIP":
+            tags.append("dvdrip")
+
+        # HDR / DV
+        hdr = meta.get("hdr", "")
+        if "HDR10+" in hdr or "HDR10Plus" in hdr:
+            tags.append("hdr10")
+        elif "DV" in hdr or meta.get("dv"):
+            tags.append("dolby-vision")
+        elif "HDR" in hdr:
+            tags.append("hdr")
+
+        # Video codec
+        codec = meta.get("video_codec", "") or meta.get("video_encode", "")
+        codec_upper = codec.upper().replace(".", "").replace("-", "")
+        if "AV1" in codec_upper:
+            tags.append("av1")
+        elif "X265" in codec_upper or "H265" in codec_upper or "HEVC" in codec_upper:
+            tags.append("hevc-h265-x265")
+        elif "X264" in codec_upper or "H264" in codec_upper or "AVC" in codec_upper:
+            tags.append("avc-h264-x264")
+
+        # Audio codec
+        audio = meta.get("audio", "")
+        audio_upper = audio.upper().replace(".", "").replace("-", "")
+        if "AAC" in audio_upper:
+            tags.append("aac")
+        elif "AC3" in audio_upper:
+            tags.append("ac3")
+        elif "EAC3" in audio_upper:
+            tags.append("e-ac3")
+        elif "DTS-HD.MA" in audio_upper or "DTSHDMA" in audio_upper:
+            tags.append("dts-hd-ma")
+        elif "DTS-HD.HRA" in audio_upper:
+            tags.append("dts-hd-hr")
+        elif "DTS-X" in audio_upper or "DTSX" in audio_upper:
+            tags.append("dts-x")
+        elif "TRUEHD" in audio_upper:
+            tags.append("truehd")
+        elif "FLAC" in audio_upper:
+            tags.append("flac")
+
+        # Atmos
+        if "ATMOS" in audio_upper:
+            tags.append("truehd-atmos")
+
+        # Container
+        container = meta.get("container", "").upper()
+        container_map = {"MKV": "mkv", "MP4": "mp4", "AVI": "avi", "ISO": "iso"}
+        if container in container_map:
+            tags.append(container_map[container])
+
+        # Language tag
+        if language_tag:
+            lang_map = {
+                "MULTI": "multi",
+                "VFF": "french",
+                "VFQ": "vfq",
+                "VF2": "vf2",
+                "VOF": "vff",
+                "VOSTFR": "vostfr",
+                "VO": "english",
+                "FRENCH": "french",
+                "ENGLISH": "english",
+            }
+            # Normalize MULTI.X to just MULTI
+            primary_lang = language_tag.split(".")[0]
+            if primary_lang in lang_map:
+                tags.append(lang_map[primary_lang])
+
+        return ",".join(tags)
 
     async def upload(self, meta: Meta, _disctype: str) -> bool:
         common = COMMON(config=self.config)
@@ -150,6 +260,9 @@ class LACALE(FrenchTrackerMixin):
 
         cover_url = meta.get("poster", "")
 
+        language_tag = meta.get("release_language", "")
+        tags = self._build_tags(meta, language_tag)
+
         files: dict[str, tuple[str, bytes, str]] = {
             "file": (f"{title}.torrent", torrent_bytes, "application/x-bittorrent"),
         }
@@ -161,6 +274,7 @@ class LACALE(FrenchTrackerMixin):
             "title": title,
             "description": description,
             "categoryId": category_id,
+            "tags": tags,
         }
 
         if tmdb_id:
@@ -170,12 +284,13 @@ class LACALE(FrenchTrackerMixin):
         if cover_url:
             data["coverUrl"] = cover_url
 
-        upload_url = f"{self.upload_url}?passkey={passkey}"
+        upload_url = f"{self.upload_url}"
 
         headers: dict[str, str] = {
             "Accept": "*/*",
             "Origin": self.base_url,
             "Referer": f"{self.base_url}/upload",
+            "X-Api-Key": passkey,
         }
 
         try:

@@ -120,7 +120,7 @@ class TestLACALECategory:
         tracker = LACALE(_config())
         meta = _meta_base(category='TV', type='WEBDL')
         cat_id, cat_slug, sub_slug = tracker._get_category(meta)
-        assert cat_id == "cmjoyv2cd0002j6ry7k0e1tav"
+        assert cat_id == "cmjoyv2dg00067ery8m6c3q8h"
         assert cat_slug == "series"
         assert sub_slug == "series-webdl"
 

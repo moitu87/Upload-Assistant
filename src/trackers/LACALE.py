@@ -16,6 +16,12 @@ Config = dict[str, Any]
 
 
 class LACALE(FrenchTrackerMixin):
+    """La-Cale tracker - French private tracker.
+    
+    API Status: Beta - Upload endpoint may require specific permissions.
+    Auth: X-Api-Key header (recommended) or ?apikey= query param
+    Docs: https://la-cale.space/api/external/docs
+    """
     WEB_LABEL: str = "WEB"
     INCLUDE_SERVICE_IN_NAME: bool = False
     UHD_ONLY_FOR_REMUX_DISC: bool = True
